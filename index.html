@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Graphical Magic — Professional artwork prep for print &amp; embroidery</title>
+<meta name="description" content="Graphical Magic turns messy customer artwork into print-ready files in seconds. Background removal, vectorising, AI upscaling and DTF gang sheets — all in one desktop app.">
+<link rel="icon" type="image/png" href="assets/img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #08090c;
+    --bg-elevated: #0f1116;
+    --panel: #14161d;
+    --panel-line: rgba(255,255,255,0.08);
+    --text: #f2f3f5;
+    --text-dim: #9a9ea8;
+    --text-faint: #63676f;
+    --accent: #6d5bff;
+    --accent-bright: #8b7cff;
+    --accent-glow: rgba(109,91,255,0.35);
+    --gold: #e5b567;
+    --success: #4ade80;
+    --radius-lg: 20px;
+    --radius-md: 12px;
+    --radius-sm: 8px;
+    --maxw: 1180px;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.5;
+    overflow-x:hidden;
+  }
+  .mono{ font-family:'JetBrains Mono', monospace; }
+  a{ color:inherit; text-decoration:none; }
+  img{ max-width:100%; display:block; }
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 28px; }
+
+  /* Background ambience */
+  .bg-glow{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(60% 45% at 18% -10%, rgba(109,91,255,0.20), transparent 60%),
+      radial-gradient(50% 40% at 100% 10%, rgba(229,181,103,0.10), transparent 60%),
+      radial-gradient(70% 50% at 50% 110%, rgba(109,91,255,0.12), transparent 60%);
+  }
+  .noise{
+    position:fixed; inset:0; z-index:1; pointer-events:none; opacity:0.025; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  main, header, footer{ position:relative; z-index:2; }
+
+  /* Nav */
+  header{
+    position:sticky; top:0; z-index:50;
+    backdrop-filter:blur(16px) saturate(140%);
+    background:rgba(8,9,12,0.72);
+    border-bottom:1px solid var(--panel-line);
+  }
+  nav{ display:flex; align-items:center; justify-content:space-between; padding:16px 28px; max-width:var(--maxw); margin:0 auto; }
+  .brand{ display:flex; align-items:center; gap:10px; font-weight:700; font-size:16px; letter-spacing:-0.01em; }
+  .brand img{ width:28px; height:28px; border-radius:7px; }
+  .nav-links{ display:flex; align-items:center; gap:32px; font-size:14px; font-weight:500; color:var(--text-dim); }
+  .nav-links a:hover{ color:var(--text); }
+  .nav-cta{
+    display:inline-flex; align-items:center; gap:6px;
+    background:var(--text); color:#0a0a0c; font-weight:600; font-size:13.5px;
+    padding:9px 18px; border-radius:999px; transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .nav-cta:hover{ transform:translateY(-1px); box-shadow:0 8px 24px rgba(255,255,255,0.15); }
+  @media (max-width:820px){ .nav-links{ display:none; } }
+
+  /* Hero */
+  .hero{ padding:120px 0 80px; text-align:center; }
+  .kicker{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:12.5px; font-weight:600; letter-spacing:0.02em; color:var(--accent-bright);
+    background:rgba(109,91,255,0.12); border:1px solid rgba(109,91,255,0.28);
+    padding:7px 16px; border-radius:999px; margin-bottom:28px;
+  }
+  .kicker .dot{ width:6px; height:6px; border-radius:50%; background:var(--success); box-shadow:0 0 8px var(--success); }
+  h1{
+    font-size:clamp(38px, 6vw, 68px); font-weight:800; letter-spacing:-0.035em; line-height:1.05;
+    max-width:880px; margin:0 auto 22px;
+  }
+  h1 .grad{
+    background:linear-gradient(135deg, var(--accent-bright), var(--gold));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .lede{
+    font-size:clamp(16px, 2vw, 19px); color:var(--text-dim); max-width:600px; margin:0 auto 42px; font-weight:400;
+  }
+  .cta-row{ display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; margin-bottom:20px; }
+  .btn{
+    display:inline-flex; align-items:center; gap:8px; font-weight:600; font-size:15px;
+    padding:14px 26px; border-radius:11px; transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+    border:1px solid transparent;
+  }
+  .btn-primary{
+    background:linear-gradient(135deg, var(--accent), #5644e0); color:#fff;
+    box-shadow:0 8px 30px var(--accent-glow), inset 0 1px 0 rgba(255,255,255,0.15);
+  }
+  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 12px 36px var(--accent-glow); }
+  .btn-secondary{
+    background:rgba(255,255,255,0.04); color:var(--text); border-color:var(--panel-line);
+  }
+  .btn-secondary:hover{ background:rgba(255,255,255,0.08); transform:translateY(-2px); }
+  .hero-sub{ font-size:13px; color:var(--text-faint); }
+
+  /* App window frame for screenshots */
+  .app-window{
+    border-radius:14px; overflow:hidden; border:1px solid var(--panel-line);
+    background:var(--panel);
+    box-shadow:0 30px 80px -20px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.06) inset;
+  }
+  .app-titlebar{
+    display:flex; align-items:center; gap:8px; padding:11px 14px;
+    background:linear-gradient(180deg, #1b1e27, #16181f); border-bottom:1px solid var(--panel-line);
+  }
+  .app-titlebar .tl{ width:11px; height:11px; border-radius:50%; }
+  .tl-r{ background:#ff5f57; } .tl-y{ background:#febc2e; } .tl-g{ background:#28c840; }
+  .app-titlebar .app-title{ margin-left:8px; font-size:12px; color:var(--text-faint); font-weight:500; }
+  .app-window img{ width:100%; display:block; }
+
+  .hero-shot{ max-width:920px; margin:64px auto 0; padding:0 12px; }
+  .hero-shot .app-window{ transform:perspective(1400px) rotateX(2deg); }
+
+  /* Trust bar */
+  .trust-bar{ padding:36px 0; border-top:1px solid var(--panel-line); border-bottom:1px solid var(--panel-line); }
+  .trust-grid{ display:flex; justify-content:center; gap:56px; flex-wrap:wrap; text-align:center; }
+  .trust-item .num{ font-size:26px; font-weight:800; letter-spacing:-0.02em; }
+  .trust-item .lbl{ font-size:12.5px; color:var(--text-faint); margin-top:4px; }
+
+  /* Section shell */
+  section{ padding:110px 0; }
+  .section-head{ text-align:center; max-width:640px; margin:0 auto 64px; }
+  .eyebrow{ font-size:12.5px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-bright); margin-bottom:14px; }
+  .section-head h2{ font-size:clamp(28px,4vw,42px); font-weight:800; letter-spacing:-0.03em; margin-bottom:14px; }
+  .section-head p{ color:var(--text-dim); font-size:16.5px; }
+
+  /* Feature rows (alternating) */
+  .feature-row{
+    display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:center; margin-bottom:130px;
+  }
+  .feature-row:last-child{ margin-bottom:0; }
+  .feature-row.reverse .f-copy{ order:2; }
+  .feature-row.reverse .f-shot{ order:1; }
+  .f-tag{
+    display:inline-block; font-size:12px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase;
+    color:var(--gold); margin-bottom:16px;
+  }
+  .f-copy h3{ font-size:clamp(24px,3vw,32px); font-weight:800; letter-spacing:-0.025em; margin-bottom:16px; line-height:1.15; }
+  .f-copy p{ color:var(--text-dim); font-size:16px; margin-bottom:22px; }
+  .f-list{ list-style:none; display:flex; flex-direction:column; gap:12px; }
+  .f-list li{ display:flex; align-items:flex-start; gap:10px; font-size:14.5px; color:var(--text); }
+  .f-list li svg{ flex-shrink:0; margin-top:2px; }
+  .f-shot .app-window{ transition:transform .4s ease; }
+  .f-shot:hover .app-window{ transform:translateY(-6px); }
+  @media (max-width:880px){
+    .feature-row, .feature-row.reverse{ grid-template-columns:1fr; gap:32px; }
+    .feature-row.reverse .f-copy, .feature-row.reverse .f-shot{ order:unset; }
+    section{ padding:70px 0; }
+    .feature-row{ margin-bottom:70px; }
+  }
+
+  /* Feature grid (small cards) */
+  .grid-3{ display:grid; grid-template-columns:repeat(3, 1fr); gap:20px; }
+  @media (max-width:880px){ .grid-3{ grid-template-columns:1fr; } }
+  .card{
+    background:var(--panel); border:1px solid var(--panel-line); border-radius:var(--radius-md);
+    padding:28px; transition:border-color .2s ease, transform .2s ease;
+  }
+  .card:hover{ border-color:rgba(109,91,255,0.4); transform:translateY(-3px); }
+  .card .icon{
+    width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(135deg, rgba(109,91,255,0.18), rgba(229,181,103,0.12));
+    border:1px solid var(--panel-line); margin-bottom:18px;
+  }
+  .card h4{ font-size:16px; font-weight:700; margin-bottom:8px; letter-spacing:-0.01em; }
+  .card p{ font-size:14px; color:var(--text-dim); }
+
+  /* Privacy / local-first strip */
+  .strip{
+    border-radius:var(--radius-lg); border:1px solid var(--panel-line);
+    background:linear-gradient(135deg, rgba(109,91,255,0.08), rgba(255,255,255,0.02));
+    padding:48px; display:flex; align-items:center; gap:40px; justify-content:space-between; flex-wrap:wrap;
+  }
+  .strip h3{ font-size:24px; font-weight:800; letter-spacing:-0.02em; margin-bottom:10px; }
+  .strip p{ color:var(--text-dim); font-size:15px; max-width:480px; }
+  .strip-badges{ display:flex; gap:12px; flex-wrap:wrap; }
+  .badge{
+    display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:600;
+    background:rgba(255,255,255,0.04); border:1px solid var(--panel-line); padding:9px 16px; border-radius:999px;
+  }
+
+  /* Pricing / CTA */
+  .pricing-card{
+    max-width:520px; margin:0 auto; background:var(--panel); border:1px solid var(--panel-line);
+    border-radius:var(--radius-lg); padding:48px; text-align:center;
+    box-shadow:0 20px 60px -20px rgba(0,0,0,0.5);
+  }
+  .pricing-card .status-dot{
+    display:inline-flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; color:var(--gold);
+    background:rgba(229,181,103,0.1); border:1px solid rgba(229,181,103,0.3); padding:6px 14px; border-radius:999px; margin-bottom:24px;
+  }
+  .pricing-card h3{ font-size:28px; font-weight:800; letter-spacing:-0.02em; margin-bottom:12px; }
+  .pricing-card p{ color:var(--text-dim); font-size:15px; margin-bottom:28px; }
+  .email-row{ display:flex; gap:10px; max-width:380px; margin:0 auto; }
+  .email-row input{
+    flex:1; background:var(--bg-elevated); border:1px solid var(--panel-line); border-radius:9px;
+    padding:12px 14px; color:var(--text); font-size:14px; font-family:inherit;
+  }
+  .email-row input:focus{ outline:none; border-color:var(--accent); }
+  .email-row button{
+    background:var(--text); color:#0a0a0c; font-weight:600; font-size:14px; padding:12px 20px; border-radius:9px; white-space:nowrap;
+  }
+  .free-tools-note{ margin-top:22px; font-size:13.5px; color:var(--text-faint); }
+  .free-tools-note a{ color:var(--accent-bright); font-weight:600; }
+  .free-tools-note a:hover{ text-decoration:underline; }
+
+  footer{ border-top:1px solid var(--panel-line); padding:56px 0 40px; }
+  .footer-grid{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:32px; margin-bottom:40px; }
+  .footer-brand .brand{ margin-bottom:12px; }
+  .footer-brand p{ color:var(--text-faint); font-size:13.5px; max-width:280px; }
+  .footer-cols{ display:flex; gap:64px; flex-wrap:wrap; }
+  .footer-col h5{ font-size:12.5px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:var(--text-faint); margin-bottom:16px; }
+  .footer-col a{ display:block; font-size:14px; color:var(--text-dim); margin-bottom:12px; }
+  .footer-col a:hover{ color:var(--text); }
+  .footer-bottom{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; padding-top:28px; border-top:1px solid var(--panel-line); font-size:13px; color:var(--text-faint); }
+
+  .reveal{ opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+<div class="noise"></div>
+
+<header>
+  <nav>
+    <div class="brand"><img src="assets/img/icon.png" alt="Graphical Magic"> Graphical Magic</div>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#workflow">Workflow</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#pricing">Pricing</a>
+    </div>
+    <a class="nav-cta" href="#pricing">Get Early Access</a>
+  </nav>
+</header>
+
+<main>
+
+  <!-- HERO -->
+  <section class="hero" style="padding-top:96px;">
+    <div class="wrap">
+      <div class="kicker"><span class="dot"></span> Now in early access — desktop app for Windows</div>
+      <h1>Turn any customer file into <span class="grad">print-ready art</span> in seconds</h1>
+      <p class="lede">Background removal, vectorising, AI upscaling and DTF gang sheets — one focused desktop app built for print shops, embroiderers and sign makers who are tired of fighting Photoshop.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#pricing">Get Early Access →</a>
+        <a class="btn btn-secondary" href="https://printprep.click" target="_blank" rel="noopener">Try Print Prep Free ↗</a>
+      </div>
+      <div class="hero-sub">No subscription lock-in · Runs on your machine · Your artwork never leaves your PC</div>
+
+      <div class="hero-shot reveal">
+        <div class="app-window">
+          <div class="app-titlebar">
+            <span class="tl tl-r"></span><span class="tl tl-y"></span><span class="tl tl-g"></span>
+            <span class="app-title">Graphical Magic</span>
+          </div>
+          <img src="assets/img/shot-home.png" alt="Graphical Magic home screen — drop artwork and pick the right workflow automatically">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRUST BAR -->
+  <div class="trust-bar">
+    <div class="wrap trust-grid">
+      <div class="trust-item"><div class="num">4</div><div class="lbl">Production tools in one app</div></div>
+      <div class="trust-item"><div class="num">100%</div><div class="lbl">Local processing, no uploads</div></div>
+      <div class="trust-item"><div class="num">2x–8x</div><div class="lbl">AI image upscaling</div></div>
+      <div class="trust-item"><div class="num">0</div><div class="lbl">Monthly fees to get started</div></div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="eyebrow">The Toolkit</div>
+        <h2>Four tools. One workflow.</h2>
+        <p>Every step from "customer sent me a blurry JPEG" to "file's on the press" — without switching apps.</p>
+      </div>
+
+      <div class="feature-row reveal">
+        <div class="f-copy">
+          <span class="f-tag">Print Prep</span>
+          <h3>Clean backgrounds without touching a lasso tool</h3>
+          <p>Drop in a photo or logo and let smart edge detection or the local AI model pull the subject out cleanly — including tricky enclosed gaps like the inside of letters.</p>
+          <ul class="f-list">
+            <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="12" fill="#4ade80" opacity="0.15"/><path d="M7 12.5l3 3 7-7" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Smart edge, colour-key or AI extraction modes</li>
+            <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="12" fill="#4ade80" opacity="0.15"/><path d="M7 12.5l3 3 7-7" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Hole removal for trapped background pixels</li>
+            <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="12" fill="#4ade80" opacity="0.15"/><path d="M7 12.5l3 3 7-7" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Halftone, colour reduction &amp; garment preview built in</li>
+          </ul>
+        </div>
+        <div class="f-shot">
+          <div class="app-window">
+            <div class="app-titlebar"><span class="tl tl-r"></span><span class="tl tl-y"></span><span class="tl tl-g"></span><span class="app-title">Print Prep</span></div>
+            <img src="assets/img/shot-print-prep.png" alt="Print Prep background removal panel">
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-row reverse reveal">
+        <div class="f-copy">
+          <span class="f-tag">Vector Prep</span>
+          <h3>Photo to crisp vector, without the guesswork</h3>
+          <p>Trace raster artwork into clean, editable paths, then fine-tune detail and touch up stray pixels — all inside a guided, step-by-step panel.</p>
+          <ul class="f-list">
+            <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="12" fill="#4ade80" opacity="0.15"/><path d="M7 12.5l3 3 7-7" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Upscale → Crop → Trace → Detail → Touch-up → Export</li>
+            <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="12" fill="#4ade80" opacity="0.15"/><path d="M7 12.5l3 3 7-7" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Live source/vector comparison as you tune</li>
+            <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="12" fill="#4ade80" opacity="0.15"/><path d="M7 12.5l3 3 7-7" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Export straight to clean, scalable SVG</li>
+          </ul>
+        </div>
+        <div class="f-shot">
+          <div class="app-window">
+            <div class="app-titlebar"><span class="tl tl-r"></span><span class="tl tl-y"></span><span class="tl tl-g"></span><span class="app-title">Vector Prep</span></div>
+            <img src="assets/img/shot-vector-prep.png" alt="Vector Prep trace result showing a clean vectorised badge">
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-row reveal">
+        <div class="f-copy">
+          <span class="f-tag">DTF Gang Sheets</span>
+          <h3>Nest designs and know your cost before you print</h3>
+          <p>Autofill your sheet, drag to arrange, and see film, ink and powder cost estimates update live — so nothing goes to press until the numbers make sense.</p>
+          <ul class="f-list">
+            <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="12" fill="#4ade80" opacity="0.15"/><path d="M7 12.5l3 3 7-7" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Auto-arrange for minimum sheet length</li>
+            <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="12" fill="#4ade80" opacity="0.15"/><path d="M7 12.5l3 3 7-7" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Live cost-to-produce breakdown</li>
+            <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="12" fill="#4ade80" opacity="0.15"/><path d="M7 12.5l3 3 7-7" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Text, colour and sheet-size controls in one place</li>
+          </ul>
+        </div>
+        <div class="f-shot">
+          <div class="app-window">
+            <div class="app-titlebar"><span class="tl tl-r"></span><span class="tl tl-y"></span><span class="tl tl-g"></span><span class="app-title">DTF Gang Sheets</span></div>
+            <img src="assets/img/shot-gang-sheet.png" alt="DTF Gang Sheet builder with cost-to-produce panel">
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-row reverse reveal">
+        <div class="f-copy">
+          <span class="f-tag">Upscale</span>
+          <h3>Rescue low-res artwork with local AI</h3>
+          <p>Blow up a pixelated logo up to 8x without leaving your desktop. Pick photo or illustration mode, crop first to save time, and compare before/after with a live slider.</p>
+          <ul class="f-list">
+            <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="12" fill="#4ade80" opacity="0.15"/><path d="M7 12.5l3 3 7-7" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> 2x, 4x, 6x and 8x scale factors</li>
+            <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="12" fill="#4ade80" opacity="0.15"/><path d="M7 12.5l3 3 7-7" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Photo/realistic vs. illustration/line-art modes</li>
+            <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="12" fill="#4ade80" opacity="0.15"/><path d="M7 12.5l3 3 7-7" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Runs fully offline — nothing leaves your PC</li>
+          </ul>
+        </div>
+        <div class="f-shot">
+          <div class="app-window">
+            <div class="app-titlebar"><span class="tl tl-r"></span><span class="tl tl-y"></span><span class="tl tl-g"></span><span class="app-title">Upscale</span></div>
+            <img src="assets/img/shot-upscale.png" alt="AI Upscale tool with before/after slider">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- WORKFLOW / SMALL FEATURE GRID -->
+  <section id="workflow" style="padding-top:0;">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="eyebrow">Built for the way you actually work</div>
+        <h2>Small details, sorted</h2>
+        <p>The unglamorous stuff that makes a tool trustworthy for daily production use.</p>
+      </div>
+      <div class="grid-3 reveal">
+        <div class="card">
+          <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 4v16h16" stroke="#8b7cff" stroke-width="1.8" stroke-linecap="round"/><path d="M8 15l3-4 3 3 5-7" stroke="#8b7cff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h4>Full undo / redo</h4>
+          <p>Every destructive step is checkpointed, so you can always step back — including crop and colour operations.</p>
+        </div>
+        <div class="card">
+          <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="3" stroke="#8b7cff" stroke-width="1.8"/><path d="M4 9h16" stroke="#8b7cff" stroke-width="1.8"/></svg></div>
+          <h4>Guided step-by-step panels</h4>
+          <p>A clear "Next Step" path through every tool, so nothing gets missed on a rushed job.</p>
+        </div>
+        <div class="card">
+          <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 4v5c0 5-3.5 7.5-7 9-3.5-1.5-7-4-7-9V7l7-4z" stroke="#8b7cff" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+          <h4>Private by design</h4>
+          <p>No cloud round-trips for your customers' artwork. Processing happens on your machine.</p>
+        </div>
+        <div class="card">
+          <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="#8b7cff" stroke-width="1.8"/><path d="M3 9h18" stroke="#8b7cff" stroke-width="1.8"/></svg></div>
+          <h4>Handles real customer files</h4>
+          <p>PNG, JPG and WebP in — clean production-ready output out, with garment colour previews.</p>
+        </div>
+        <div class="card">
+          <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2v6M12 16v6M4.9 4.9l4.2 4.2M14.9 14.9l4.2 4.2M2 12h6M16 12h6M4.9 19.1l4.2-4.2M14.9 9.1l4.2-4.2" stroke="#8b7cff" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          <h4>Fast, focused tools</h4>
+          <p>No bloated suite to learn — each tool does one job well and gets out of your way.</p>
+        </div>
+        <div class="card">
+          <div class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0112 6.5 5.5 5.5 0 0121.5 12c-2.5 4.5-9.5 9-9.5 9z" stroke="#8b7cff" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+          <h4>Built with print shops</h4>
+          <p>Shaped by real feedback from embroidery and DTF production, not designed in a vacuum.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRIVACY STRIP -->
+  <section id="privacy" style="padding-top:0;">
+    <div class="wrap">
+      <div class="strip reveal">
+        <div>
+          <h3>Your customers' artwork stays on your PC</h3>
+          <p>Graphical Magic's core tools run locally — no upload, no server round-trip, no waiting on someone else's queue.</p>
+        </div>
+        <div class="strip-badges">
+          <span class="badge">🔒 Local processing</span>
+          <span class="badge">⚡ No upload wait</span>
+          <span class="badge">🖥️ Windows desktop app</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING / EARLY ACCESS -->
+  <section id="pricing">
+    <div class="wrap">
+      <div class="pricing-card reveal">
+        <div class="status-dot">● Early access — desktop app in final testing</div>
+        <h3>Get Graphical Magic first</h3>
+        <p>The desktop app is being polished for its first public release. Leave your email and we'll let you know the moment it's ready to buy.</p>
+        <form class="email-row" onsubmit="event.preventDefault(); this.querySelector('button').textContent='Thanks — you\'re on the list!'; this.querySelector('input').disabled=true; this.querySelector('button').disabled=true;">
+          <input type="email" required placeholder="you@yourprintshop.com">
+          <button type="submit">Notify Me</button>
+        </form>
+        <div class="free-tools-note">
+          Not ready to wait? Try the free web versions right now:
+          <br>
+          <a href="https://printprep.click" target="_blank" rel="noopener">printprep.click</a> · <a href="https://vectorprep.click" target="_blank" rel="noopener">vectorprep.click</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="brand"><img src="assets/img/icon.png" alt="Graphical Magic"> Graphical Magic</div>
+        <p>Professional artwork prep for print shops, embroiderers and sign makers. Built to get out of your way.</p>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h5>Product</h5>
+          <a href="#features">Features</a>
+          <a href="#workflow">Workflow</a>
+          <a href="#pricing">Early Access</a>
+        </div>
+        <div class="footer-col">
+          <h5>Free Tools</h5>
+          <a href="https://printprep.click" target="_blank" rel="noopener">Print Prep ↗</a>
+          <a href="https://vectorprep.click" target="_blank" rel="noopener">Vector Prep ↗</a>
+        </div>
+        <div class="footer-col">
+          <h5>Company</h5>
+          <a href="mailto:hello@graphicalmagic.click">Contact</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Graphical Magic. All rights reserved.</span>
+      <span>Made for people who'd rather be printing than fighting software.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.05, rootMargin: '0px 0px -5% 0px' });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  } else {
+    document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+  }
+  // Safety net: never let content stay invisible if the observer misses a fast/programmatic
+  // scroll or a jump-to-anchor. Anything not revealed within 2s is shown anyway.
+  setTimeout(() => document.querySelectorAll('.reveal:not(.in)').forEach(el => el.classList.add('in')), 2000);
+</script>
+
+</body>
+</html>
