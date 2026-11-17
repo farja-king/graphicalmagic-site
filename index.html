@@ -60,7 +60,7 @@
 
   /* Nav */
   header{
-    position:sticky; top:0; z-index:50;
+    position:sticky; top:var(--bar-h,0px); z-index:50;
     backdrop-filter:blur(16px) saturate(140%);
     background:rgba(8,9,12,0.72);
     border-bottom:1px solid var(--panel-line);
@@ -238,10 +238,19 @@
 
   .reveal{ opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease; }
   .reveal.in{ opacity:1; transform:translateY(0); }
+
+  /* Black Friday / Christmas offer bar - shown only 23 Nov 2026 00:00 UTC to 1 Jan 2027 23:00 UTC (see script at the end) */
+  .offer-bar{ display:none; position:sticky; top:0; z-index:60; background:linear-gradient(90deg,#3a2c0c,#6b4d12 50%,#3a2c0c); color:#fff3d6; border-bottom:1px solid rgba(229,181,103,.5); text-align:center; padding:9px 16px; font-size:14px; line-height:1.45; }
+  .offer-bar.on{ display:block; }
+  .offer-bar b{ color:#ffd98a; }
+  .offer-bar s{ opacity:.65; }
+  .offer-bar a{ display:inline-block; margin-left:10px; padding:3px 12px; border-radius:999px; background:var(--gold); color:#1a1305; font-weight:700; text-decoration:none; white-space:nowrap; }
+  .offer-bar a:hover{ filter:brightness(1.08); }
 </style>
 </head>
 <body>
 
+<div class="offer-bar" id="offerBar" role="note"><b>Black Friday &amp; Christmas offer</b> &mdash; Graphical Magic is just <b>&pound;9.99</b> <s>&pound;49.99</s> on the Microsoft Store &middot; until 1 January <a href="https://apps.microsoft.com/detail/9NGCTV2QSKMQ" target="_blank" rel="noopener">Get the offer &rarr;</a></div>
 <div class="bg-glow"></div>
 <div class="noise"></div>
 
@@ -517,5 +526,14 @@
   setTimeout(() => document.querySelectorAll('.reveal:not(.in)').forEach(el => el.classList.add('in')), 2000);
 </script>
 
+<script>
+// Offer bar: on only during the Microsoft Store sale (23 Nov 2026 00:00 UTC - 1 Jan 2027 23:00 UTC). Add ?offer=1 to the address to preview it.
+(function(){
+  var bar=document.getElementById('offerBar'); if(!bar) return;
+  var now=Date.now(), on=(now>=Date.UTC(2026,10,23,0,0)&&now<=Date.UTC(2027,0,1,23,0))||/[?&]offer=1/.test(location.search);
+  function size(){ document.documentElement.style.setProperty('--bar-h', (on?bar.offsetHeight:0)+'px'); }
+  if(on){ bar.classList.add('on'); size(); window.addEventListener('resize',size); }
+})();
+</script>
 </body>
 </html>
